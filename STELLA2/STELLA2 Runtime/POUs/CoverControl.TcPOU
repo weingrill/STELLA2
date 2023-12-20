@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="CoverControl" Id="{c323d474-9f57-40fd-ba67-b4ebd08c9f7c}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM CoverControl
 VAR_INPUT
@@ -22,10 +22,6 @@ VAR_OUTPUT
 	Error: 	BOOL;
 	// warning state of the DC drives
 	Warning: BOOL;
-	// cover1 is open
-	Cover1_opened, 
-	// cover1 is closed
-	Cover1_closed:	BOOL;
 	// cover2 is open
 	Cover2_opened, 
 	// cover2 is closed
@@ -34,8 +30,9 @@ VAR_OUTPUT
 	Cover3_opened, 
 	// cover3 is closed
 	Cover3_closed:	BOOL;
-	Cover1_error: BOOL;
+	// cover 2 has an error (open and closed at the same time)
 	Cover2_error: BOOL;
+	// cover 3 has an error (open and closed at the same time)
 	Cover3_error: BOOL;
 END_VAR
 VAR
@@ -46,12 +43,11 @@ VAR
 	// trigger for error
 	error_trigger:	SR;
 	//error event for cover1
-	Cover1_Event,
 	Cover2_Event,
 	Cover3_Event:	FB_EventLog;
-	// timeout event for cover1
-	Cover1_Timeout_Event,
+	// timeout event for cover2
 	Cover2_Timeout_Event,
+	// timeout event for cover3
 	Cover3_Timeout_Event:	FB_EventLog;
 	// log if covers are open
 	Covers_opened_event,
@@ -61,8 +57,7 @@ VAR
 	Covers_Error_event:		FB_EventLog;
 	// Event log for a generic drive warning
 	Covers_Warning_event:		FB_EventLog;
-END_VAR
-]]></Declaration>
+END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[(*
 This is the control for the two (three) telescope covers. 
@@ -75,13 +70,10 @@ IF close THEN
 	open := FALSE;
 END_IF
 
-Cover1_opened := NOT GVL_Telescope.cover1_open;
 Cover2_opened := NOT GVL_Telescope.cover2_open;
 Cover3_opened := NOT GVL_Telescope.cover3_open;
-Cover1_closed := NOT GVL_Telescope.cover1_closed;
 Cover2_closed := NOT GVL_Telescope.cover2_closed;
 Cover3_closed := NOT GVL_Telescope.cover3_closed;
-Cover1_error := Cover1_opened AND Cover1_closed;
 Cover2_error := Cover2_opened AND Cover2_closed;
 Cover3_error := Cover3_opened AND Cover3_closed;
 
@@ -91,22 +83,20 @@ open2_delay(IN := open AND NOT cover3_closed);
 close3_delay(IN := close AND NOT cover2_opened);
 
 IF close THEN
-	GVL_Telescope.close_cover1 := GVL_Telescope.cover1_closed AND NOT GVL_Telescope.cover3_closed;
 	GVL_Telescope.close_cover2 := GVL_Telescope.cover2_closed;
 	GVL_Telescope.close_cover3 := GVL_Telescope.cover3_closed AND close3_delay.Q;
 ELSIF open THEN
-	GVL_Telescope.open_cover1 := GVL_Telescope.cover1_open;
 	GVL_Telescope.open_cover2 := GVL_Telescope.cover2_open AND open2_delay.Q;
 	GVL_Telescope.open_cover3 := GVL_Telescope.cover3_open;			
 END_IF
 
 
 // we are open, if all covers are open
-isopen := cover3_opened AND cover2_opened AND cover1_opened;
+isopen := cover3_opened AND cover2_opened;
 // we are closed, if all covers are closed
-isclosed := cover2_closed AND cover3_closed AND cover1_closed;
+isclosed := cover2_closed AND cover3_closed;
 // error indicates an axis error on any axis
-error_trigger(SET1 := Cover1_error OR Cover2_error OR Cover3_error,
+error_trigger(SET1 := Cover2_error OR Cover3_error,
 				RESET := reset,
 				Q1 => error);
 //Warning := Cover1_control.Warning OR Cover2_control.Warning OR Cover3_control.Warning;
@@ -127,9 +117,6 @@ IF Error THEN
 	IF Cover2_error THEN 
 		Covers_Error_Event.OnMessage := 'Cover 2 has a drive error.';
 	END_IF
-	IF Cover1_error  AND NOT GVL_Main.isRoboTel THEN 
-		Covers_Error_Event.OnMessage := 'Cover 1 has a drive error.';
-	END_IF
 END_IF
 
 Covers_Error_event(	Trigger := Error, 
@@ -139,11 +126,6 @@ Covers_Warning_event(	Trigger := Warning,
 						Level := ADSLOG_MSGTYPE_WARN);
 
 // raise an error, if both opened and closed signals are activated
-// handle RoboTel differently
-Cover1_Event(	Trigger := cover1_opened AND cover1_closed AND NOT GVL_Main.isRoboTel,
-				Level := ADSLOG_MSGTYPE_ERROR, 
-				OnMessage := 'Cover1: limit switch error');
-
 Cover2_Event(Trigger := cover2_opened AND cover2_closed,
 				Level := ADSLOG_MSGTYPE_ERROR, 
 				OnMessage := 'Cover2: limit switch error');
@@ -153,12 +135,6 @@ Cover3_Event(Trigger := cover3_opened AND cover3_closed,
 				OnMessage := 'Cover3: limit switch error');
 
 //trigger an event, if we encounter a timeout
-// handle RoboTel differently
-
-Cover1_Timeout_Event(Trigger := FALSE,
-				Level := ADSLOG_MSGTYPE_ERROR, 
-				OnMessage := 'Cover1: Timeout');
-
 Cover2_Timeout_Event(Trigger := FALSE,
 				Level := ADSLOG_MSGTYPE_ERROR, 
 				OnMessage := 'Cover2: Timeout');
@@ -186,10 +162,8 @@ Covers_closed_event(Trigger := isclosed,
       <LineId Id="5" Count="0" />
       <LineId Id="16" Count="1" />
       <LineId Id="269" Count="0" />
-      <LineId Id="32" Count="0" />
       <LineId Id="271" Count="1" />
-      <LineId Id="270" Count="0" />
-      <LineId Id="274" Count="2" />
+      <LineId Id="274" Count="1" />
       <LineId Id="1097" Count="1" />
       <LineId Id="1096" Count="0" />
       <LineId Id="273" Count="0" />
@@ -198,10 +172,8 @@ Covers_closed_event(Trigger := isclosed,
       <LineId Id="35" Count="0" />
       <LineId Id="1091" Count="0" />
       <LineId Id="1084" Count="0" />
-      <LineId Id="1092" Count="0" />
       <LineId Id="1094" Count="1" />
       <LineId Id="931" Count="0" />
-      <LineId Id="1085" Count="0" />
       <LineId Id="1087" Count="1" />
       <LineId Id="1086" Count="0" />
       <LineId Id="1090" Count="0" />
@@ -223,7 +195,7 @@ Covers_closed_event(Trigger := isclosed,
       <LineId Id="632" Count="0" />
       <LineId Id="634" Count="0" />
       <LineId Id="633" Count="0" />
-      <LineId Id="635" Count="5" />
+      <LineId Id="635" Count="2" />
       <LineId Id="630" Count="0" />
       <LineId Id="914" Count="0" />
       <LineId Id="449" Count="0" />
@@ -232,21 +204,13 @@ Covers_closed_event(Trigger := isclosed,
       <LineId Id="648" Count="0" />
       <LineId Id="356" Count="0" />
       <LineId Id="334" Count="0" />
-      <LineId Id="535" Count="0" />
-      <LineId Id="335" Count="0" />
-      <LineId Id="377" Count="0" />
-      <LineId Id="381" Count="0" />
-      <LineId Id="340" Count="1" />
+      <LineId Id="341" Count="0" />
       <LineId Id="382" Count="1" />
       <LineId Id="345" Count="1" />
       <LineId Id="384" Count="1" />
       <LineId Id="375" Count="0" />
       <LineId Id="364" Count="0" />
-      <LineId Id="537" Count="0" />
-      <LineId Id="536" Count="0" />
-      <LineId Id="365" Count="0" />
-      <LineId Id="386" Count="1" />
-      <LineId Id="367" Count="1" />
+      <LineId Id="368" Count="0" />
       <LineId Id="388" Count="1" />
       <LineId Id="370" Count="1" />
       <LineId Id="390" Count="1" />

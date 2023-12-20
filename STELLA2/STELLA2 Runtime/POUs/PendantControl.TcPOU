@@ -95,24 +95,7 @@ END_IF
 // enable only the selected item and connect lamps and buttons accordingly
 CASE Selection OF
 	1:	// reserved for Cover1 control
-		lamp_up := GVL_Telescope.cover1_open;
-		lamp_down := GVL_Telescope.cover1_closed;
-		IF manual THEN
-			//CoverEnable(SET := enable, Q := CoverControl.enable);
-			//CoverControl.active_cover := 1;
-			//CoverControl.reset := reset;
-			GVL_Telescope.open_cover1 := up AND GVL_Telescope.cover1_open;
-			GVL_Telescope.close_cover1 := down AND GVL_Telescope.cover1_closed;
-			lamp_error := CoverControl.Cover1_Error;	
-		ELSE
-			IF down THEN 
-				CoverControl.close := TRUE;
-			END_IF
-			IF up THEN
-				CoverControl.open := TRUE;
-			END_IF		
-		END_IF
-
+		
 	2: // Cover2 control
 		lamp_up := GVL_Telescope.cover2_open;
 		lamp_down := GVL_Telescope.cover2_closed;
@@ -293,7 +276,8 @@ GVL_pendant_control.lamp_error := lamp_error;]]></ST>
       <LineId Id="3248" Count="3" />
       <LineId Id="3595" Count="7" />
       <LineId Id="3594" Count="0" />
-      <LineId Id="3252" Count="58" />
+      <LineId Id="3252" Count="2" />
+      <LineId Id="3272" Count="38" />
       <LineId Id="3322" Count="2" />
       <LineId Id="3333" Count="2" />
       <LineId Id="3344" Count="33" />
