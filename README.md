@@ -1,0 +1,5 @@
+# STELLA2
+## Configuration
+* PLC: BTN-000T1J5B
+* AMS Net-ID: 5.122.40.156.1.1
+* IP: 141.33.128.170
