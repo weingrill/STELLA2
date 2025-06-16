@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
   <POU Name="PendantControl" Id="{4c9494b1-b987-44f6-88ae-faae341979f2}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM PendantControl
 VAR
@@ -157,10 +157,10 @@ CASE Selection OF
 		lamp_error := ElevationControl.error;
 		
 	8:	// Azimuth Control
-		lamp_left := GVL_Telescope.Azimuth_inputs.0; // NOT GVL_Telescope.azimut_limit_switch;
-		lamp_right := GVL_Telescope.Azimuth_inputs.1; // NOT GVL_Telescope.azimut_limit_switch;
-		AzimuthElevationControl.left := left AND GVL_Telescope.Azimuth_inputs.0;
-		AzimuthElevationControl.right := right AND GVL_Telescope.Azimuth_inputs.1;
+		lamp_left := AzimuthElevationControl.enable AND NOT GVL_Telescope.Azimuth_inputs.3;// GVL_Telescope.Azimuth_inputs.0; 
+		lamp_right := AzimuthElevationControl.enable AND NOT GVL_Telescope.Azimuth_inputs.3; // GVL_Telescope.Azimuth_inputs.1; 
+		AzimuthElevationControl.left := left; // AND GVL_Telescope.Azimuth_inputs.0;
+		AzimuthElevationControl.right := right; // AND GVL_Telescope.Azimuth_inputs.1;
 		AzimuthElevationControl.reset := reset;
 		IF manual THEN
 			AzimuthEnable(

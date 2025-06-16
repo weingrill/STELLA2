@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
   <POU Name="CoverControl" Id="{c323d474-9f57-40fd-ba67-b4ebd08c9f7c}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM CoverControl
 VAR_INPUT
@@ -37,9 +37,9 @@ VAR_OUTPUT
 END_VAR
 VAR
 	// delay timer for opening cover2
-	open2_delay: 	TON := (PT:=T#1S);;
-	// dely timer for closing cover3
-	close3_delay : 	TON := (PT:=T#3S);;
+	open2_delay: 	TON := (PT:=T#2S);
+	// delay timer for closing cover3
+	close3_delay : 	TON := (PT:=T#5S);;
 	// trigger for error
 	error_trigger:	SR;
 	//error event for cover1
@@ -63,6 +63,7 @@ END_VAR]]></Declaration>
 This is the control for the two (three) telescope covers. 
 The correct order for opening is 1->3->2 and for closing 2->3->1.
 GVL Open and close signals are inverted
+Cover3 has the rubber lid
 *)
 
 // close has precedence over open
@@ -78,16 +79,26 @@ Cover2_error := Cover2_opened AND Cover2_closed;
 Cover3_error := Cover3_opened AND Cover3_closed;
 
 // wait for cover2 until cover3 has left the closed state
-open2_delay(IN := open AND NOT cover3_closed);
+open2_delay(IN := open AND NOT cover2_opened AND NOT cover3_closed);
 // wait for cover3 until cover2 has left the open state
-close3_delay(IN := close AND NOT cover2_opened);
-
-IF close THEN
-	GVL_Telescope.close_cover2 := GVL_Telescope.cover2_closed;
-	GVL_Telescope.close_cover3 := GVL_Telescope.cover3_closed AND close3_delay.Q;
-ELSIF open THEN
-	GVL_Telescope.open_cover2 := GVL_Telescope.cover2_open AND open2_delay.Q;
-	GVL_Telescope.open_cover3 := GVL_Telescope.cover3_open;			
+close3_delay(IN := close AND NOT cover3_closed AND NOT cover2_opened);
+IF Pendantcontrol.manual THEN
+	open := FALSE;
+	close := FALSE;
+ELSE // automatic
+	IF close THEN
+		GVL_Telescope.close_cover2 := NOT cover2_closed;
+		GVL_Telescope.close_cover3 := close3_delay.Q;
+	ELSIF open THEN
+		GVL_Telescope.open_cover2 := open2_delay.Q;
+		GVL_Telescope.open_cover3 := NOT cover3_opened;	
+	ELSE
+		GVL_Telescope.close_cover2 := FALSE;
+		GVL_Telescope.close_cover3 := FALSE;
+		GVL_Telescope.open_cover2 := FALSE;
+		GVL_Telescope.open_cover3 := FALSE;		
+	END_IF
+		
 END_IF
 
 
@@ -156,6 +167,7 @@ Covers_closed_event(Trigger := isclosed,
       <LineId Id="146" Count="0" />
       <LineId Id="149" Count="1" />
       <LineId Id="261" Count="0" />
+      <LineId Id="1359" Count="0" />
       <LineId Id="148" Count="0" />
       <LineId Id="147" Count="0" />
       <LineId Id="18" Count="0" />
@@ -171,11 +183,16 @@ Covers_closed_event(Trigger := isclosed,
       <LineId Id="277" Count="0" />
       <LineId Id="35" Count="0" />
       <LineId Id="1091" Count="0" />
+      <LineId Id="1300" Count="2" />
       <LineId Id="1084" Count="0" />
       <LineId Id="1094" Count="1" />
       <LineId Id="931" Count="0" />
       <LineId Id="1087" Count="1" />
+      <LineId Id="1290" Count="0" />
+      <LineId Id="1294" Count="1" />
+      <LineId Id="1292" Count="1" />
       <LineId Id="1086" Count="0" />
+      <LineId Id="1298" Count="1" />
       <LineId Id="1090" Count="0" />
       <LineId Id="159" Count="0" />
       <LineId Id="142" Count="0" />

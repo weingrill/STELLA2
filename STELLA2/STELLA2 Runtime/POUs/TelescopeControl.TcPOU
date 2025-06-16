@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
   <POU Name="TelescopeControl" Id="{6a4f2e3a-c9ee-4352-b4f6-4f9d94b2c472}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM TelescopeControl
 VAR_INPUT
@@ -91,6 +91,7 @@ VAR
 	AzimuthVelocity: LREAL;
 	// sign of derotation
 	StatusWord, LastStatus:	UDINT;
+	ignore_covers:	BOOL;
 END_VAR
 VAR_OUTPUT
 	//		TRUE, IF telescope can be operated
@@ -125,7 +126,7 @@ VAR CONSTANT
 	// telescope site height above sea level: estimated
 	altitude: 		LREAL := 2390.0;
 	elevation_park: LREAL := 60.0;
-	azimuth_park: 	LREAL := 359.999;
+	azimuth_park: 	LREAL := 0.0;
 	
 	elevation_home: LREAL := 55.0;
 	azimuth_home: 	LREAL := 180.0;
@@ -222,10 +223,10 @@ hor2eq(alt := elevation_current - PointingModelElevation(azimuth_calc, elevation
 		ra => rightascension_calc,
 		dec => declination_calc);		
 	
-poweronwarning(IN := power OR (NOT ElevationControl.enable AND HydraulicsControl.brake_open), PT := T#250MS);
+poweronwarning(IN := power, PT := T#10S);
 
 power_timeout(IN := TCS_command = E_TCSCommand.no_command AND NOT isparked, PT := T#12H);
-IF power_timeout.Q AND NOT isparked THEN
+IF power_timeout.Q AND NOT isparked AND ready THEN
 	park := TRUE;
 END_IF
 
@@ -240,15 +241,17 @@ ELSIF stop THEN
 	gohome := FALSE;
 	park := FALSE;
 ELSIF park THEN
-	TCS_command := E_TCSCommand.park;
 	goto := FALSE;
 	track := FALSE;
 	slew := FALSE;
+	IF ready AND stopped THEN
+		TCS_command := E_TCSCommand.park;
+	END_IF
 ELSIF gohome THEN
 	goto := FALSE;
 	track := FALSE;
 	slew := FALSE;
-	IF ready AND NOT busy THEN
+	IF ready AND NOT busy AND stopped THEN
 		TCS_command := E_TCSCommand.gohome;
 	END_IF
 ELSIF goto THEN
@@ -307,13 +310,17 @@ homed := ElevationControl.Calibrated AND
 			AzimuthElevationControl.calibrated;
 			
 ready := homed AND 
-	CoverControl.isopen AND 
+	(CoverControl.isopen OR ignore_covers) AND 
 	ElevationControl.enable AND
 	AzimuthElevationControl.enable AND HydraulicsControl.brake_open AND 
     NOT error;
 
 busy := ElevationControl.ElevationAxis.Busy OR
 		AzimuthElevationControl.AzimuthAxis.Busy;
+// unset the STOP command if telescope is already stopped
+IF stopped THEN
+	stop := FALSE;
+END_IF
 	
 IF NOT error THEN
 	reset := FALSE;
@@ -475,7 +482,7 @@ CASE Stage OF
 	25:	
 		ElevationControl.position := elevation_calc;
 		AzimuthElevationControl.position := azimuth_calc;
-		ElevationControl.velocity := 10.0;
+		ElevationControl.velocity := 5.0;
 		AzimuthElevationControl.velocity := 10.0;
 		
 		ElevationControl.MoveAxis := TRUE;
@@ -531,7 +538,7 @@ IF command_timeout.Q THEN
 END_IF
 
 IF ready AND stopped AND NOT busy AND NOT tracking THEN
-	ElevationControl.velocity := 10.0;
+	ElevationControl.velocity := 5.0;
 	ElevationControl.position := elevation_home;
 	ElevationControl.MoveAxis := TRUE;
 	AzimuthElevationControl.velocity := 10.0;
@@ -689,8 +696,8 @@ END_IF
 // this avoids imbalance by the M2 mirror on the elvation during its calibration
 
 IF CoverControl.isopen AND 
-	ElevationControl.Calibrated AND
-	AzimuthElevationControl.calibrated THEN
+	ElevationControl.Calibrated AND ElevationControl.Ready AND
+	AzimuthElevationControl.calibrated AND AzimuthElevationControl.ready THEN
 	power := FALSE;
 	poweron := TRUE;
 	isparked := FALSE;
@@ -732,7 +739,7 @@ CASE Stage OF
 		END_IF
 	25:
 		ElevationControl.position := elevation;
-		ElevationControl.velocity := 10.0;
+		ElevationControl.velocity := 5.0;
 		ElevationControl.MoveAxis := TRUE;
 		AzimuthElevationControl.position := azimuth;
 		AzimuthElevationControl.velocity := 10.0;
@@ -840,179 +847,7 @@ END_IF
       </Implementation>
     </Method>
     <LineIds Name="TelescopeControl">
-      <LineId Id="5012" Count="1" />
-      <LineId Id="58" Count="0" />
-      <LineId Id="3290" Count="1" />
-      <LineId Id="65" Count="0" />
-      <LineId Id="628" Count="1" />
-      <LineId Id="7470" Count="1" />
-      <LineId Id="645" Count="0" />
-      <LineId Id="4249" Count="1" />
-      <LineId Id="7318" Count="0" />
-      <LineId Id="4251" Count="0" />
-      <LineId Id="4301" Count="0" />
-      <LineId Id="7319" Count="0" />
-      <LineId Id="4253" Count="0" />
-      <LineId Id="4252" Count="0" />
-      <LineId Id="6575" Count="1" />
-      <LineId Id="6581" Count="0" />
-      <LineId Id="6601" Count="0" />
-      <LineId Id="6600" Count="0" />
-      <LineId Id="6598" Count="0" />
-      <LineId Id="4330" Count="0" />
-      <LineId Id="6587" Count="0" />
-      <LineId Id="6589" Count="2" />
-      <LineId Id="8725" Count="1" />
-      <LineId Id="6586" Count="0" />
-      <LineId Id="8274" Count="0" />
-      <LineId Id="4246" Count="1" />
-      <LineId Id="5528" Count="1" />
-      <LineId Id="4248" Count="0" />
-      <LineId Id="8275" Count="0" />
-      <LineId Id="1282" Count="0" />
-      <LineId Id="1795" Count="3" />
-      <LineId Id="2008" Count="2" />
-      <LineId Id="7963" Count="0" />
-      <LineId Id="7969" Count="0" />
-      <LineId Id="3301" Count="0" />
-      <LineId Id="7962" Count="0" />
-      <LineId Id="9120" Count="1" />
-      <LineId Id="9296" Count="5" />
-      <LineId Id="8944" Count="0" />
-      <LineId Id="7964" Count="0" />
-      <LineId Id="3302" Count="1" />
-      <LineId Id="8423" Count="0" />
-      <LineId Id="3520" Count="0" />
-      <LineId Id="2011" Count="0" />
-      <LineId Id="3521" Count="4" />
-      <LineId Id="3528" Count="1" />
-      <LineId Id="6201" Count="0" />
-      <LineId Id="4075" Count="0" />
-      <LineId Id="9132" Count="0" />
-      <LineId Id="6608" Count="1" />
-      <LineId Id="6611" Count="1" />
-      <LineId Id="6606" Count="0" />
-      <LineId Id="1499" Count="0" />
-      <LineId Id="8133" Count="1" />
-      <LineId Id="8568" Count="6" />
-      <LineId Id="8563" Count="4" />
-      <LineId Id="1513" Count="0" />
-      <LineId Id="1526" Count="0" />
-      <LineId Id="4276" Count="0" />
-      <LineId Id="6379" Count="0" />
-      <LineId Id="8946" Count="2" />
-      <LineId Id="8579" Count="0" />
-      <LineId Id="8581" Count="1" />
-      <LineId Id="8950" Count="1" />
-      <LineId Id="8949" Count="0" />
-      <LineId Id="6374" Count="1" />
-      <LineId Id="6380" Count="0" />
-      <LineId Id="8953" Count="1" />
-      <LineId Id="8952" Count="0" />
-      <LineId Id="8575" Count="1" />
-      <LineId Id="8578" Count="0" />
-      <LineId Id="8956" Count="1" />
-      <LineId Id="8955" Count="0" />
-      <LineId Id="1511" Count="0" />
-      <LineId Id="1519" Count="0" />
-      <LineId Id="4290" Count="1" />
-      <LineId Id="8415" Count="0" />
-      <LineId Id="9134" Count="0" />
-      <LineId Id="1509" Count="0" />
-      <LineId Id="4299" Count="0" />
-      <LineId Id="8136" Count="1" />
-      <LineId Id="8427" Count="1" />
-      <LineId Id="3533" Count="0" />
-      <LineId Id="7783" Count="0" />
-      <LineId Id="3541" Count="0" />
-      <LineId Id="4239" Count="0" />
-      <LineId Id="3928" Count="0" />
-      <LineId Id="6383" Count="1" />
-      <LineId Id="7476" Count="0" />
-      <LineId Id="8425" Count="1" />
-      <LineId Id="3535" Count="0" />
-      <LineId Id="3540" Count="0" />
-      <LineId Id="3539" Count="0" />
-      <LineId Id="7626" Count="0" />
-      <LineId Id="8413" Count="0" />
-      <LineId Id="7632" Count="0" />
-      <LineId Id="4256" Count="0" />
-      <LineId Id="7624" Count="0" />
-      <LineId Id="7631" Count="0" />
-      <LineId Id="4255" Count="0" />
-      <LineId Id="7621" Count="0" />
-      <LineId Id="7630" Count="0" />
-      <LineId Id="7279" Count="0" />
-      <LineId Id="4257" Count="0" />
-      <LineId Id="7629" Count="0" />
-      <LineId Id="7948" Count="0" />
-      <LineId Id="7950" Count="1" />
-      <LineId Id="7949" Count="0" />
-      <LineId Id="8718" Count="0" />
-      <LineId Id="8727" Count="0" />
-      <LineId Id="8729" Count="0" />
-      <LineId Id="8942" Count="0" />
-      <LineId Id="8728" Count="0" />
-      <LineId Id="7473" Count="2" />
-      <LineId Id="7933" Count="0" />
-      <LineId Id="7133" Count="0" />
-      <LineId Id="7934" Count="0" />
-      <LineId Id="7936" Count="0" />
-      <LineId Id="7935" Count="0" />
-      <LineId Id="4662" Count="0" />
-      <LineId Id="8731" Count="0" />
-      <LineId Id="8733" Count="1" />
-      <LineId Id="8732" Count="0" />
-      <LineId Id="4663" Count="2" />
-      <LineId Id="4837" Count="1" />
-      <LineId Id="9294" Count="1" />
-      <LineId Id="4841" Count="0" />
-      <LineId Id="8424" Count="0" />
-      <LineId Id="4855" Count="0" />
-      <LineId Id="4857" Count="0" />
-      <LineId Id="8416" Count="0" />
-      <LineId Id="8961" Count="0" />
-      <LineId Id="9290" Count="0" />
-      <LineId Id="9292" Count="1" />
-      <LineId Id="8962" Count="0" />
-      <LineId Id="8934" Count="6" />
-      <LineId Id="4656" Count="0" />
-      <LineId Id="7090" Count="0" />
-      <LineId Id="7093" Count="4" />
-      <LineId Id="7091" Count="0" />
-      <LineId Id="8119" Count="6" />
-      <LineId Id="8723" Count="0" />
-      <LineId Id="7098" Count="3" />
-      <LineId Id="7103" Count="4" />
-      <LineId Id="8126" Count="6" />
-      <LineId Id="8724" Count="0" />
-      <LineId Id="7132" Count="0" />
-      <LineId Id="7092" Count="0" />
-      <LineId Id="3530" Count="1" />
-      <LineId Id="3583" Count="2" />
-      <LineId Id="6778" Count="0" />
-      <LineId Id="5530" Count="0" />
-      <LineId Id="3085" Count="0" />
-      <LineId Id="931" Count="1" />
-      <LineId Id="1179" Count="0" />
-      <LineId Id="933" Count="3" />
-      <LineId Id="1180" Count="0" />
-      <LineId Id="937" Count="0" />
-      <LineId Id="1183" Count="0" />
-      <LineId Id="939" Count="1" />
-      <LineId Id="1181" Count="0" />
-      <LineId Id="941" Count="0" />
-      <LineId Id="1184" Count="0" />
-      <LineId Id="943" Count="1" />
-      <LineId Id="1182" Count="0" />
-      <LineId Id="945" Count="0" />
-      <LineId Id="1185" Count="0" />
-      <LineId Id="947" Count="2" />
-      <LineId Id="1187" Count="0" />
-      <LineId Id="1186" Count="0" />
-      <LineId Id="1209" Count="0" />
-      <LineId Id="1491" Count="4" />
-      <LineId Id="6773" Count="2" />
+      <LineId Id="9447" Count="287" />
       <LineId Id="3293" Count="0" />
     </LineIds>
     <LineIds Name="TelescopeControl.gototelescope">

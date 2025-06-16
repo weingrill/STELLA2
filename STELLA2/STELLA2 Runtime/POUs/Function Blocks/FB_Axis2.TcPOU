@@ -121,7 +121,7 @@ Axis_Reset(
 (* Tracking section ********************************************** *)
 
 IF Tracking THEN
-	PositionDifference := LIMIT(-0.002, Position - ActualPosition, 0.002);
+	PositionDifference := LIMIT(-0.02, Position - ActualPosition, 0.02);
 	TrackPosition := ActualPosition + PositionDifference;
 	TrackVelocity := 0.0; // LIMIT(-1.0, 2.0 * Velocity, 1.0);
 	TrackAcceleration := 0.0;

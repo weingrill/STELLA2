@@ -55,16 +55,17 @@ VAR
 	CalibrationEvent:	FB_Eventlog;
 	ReadParameter:		MC_ReadParameter;
 	getlastposition:	BOOL := TRUE;
-	azimuth_rest_timer:	TON;
-	azimuth_at_rest:	BOOL;
 	fbSoEReset: 		FB_SoEReset;
 	DiagnosticError:	BOOL;
+	enable_positive:	BOOL;
+	enable_negative:	BOOL;
 END_VAR
 VAR CONSTANT
 	// reference position for homing
 	// homing_position:		LREAL := 439.0; // was 442 - -21.21 = 463.21; 463 + 24 = 439
 	// current position of the calibration cam encoder zero index. Apply an offset here if necessary
-	calibration_position:	LREAL :=  208.6273; //208.6073; // 208.7122869;//207.0092; // 208.2342; 
+	// new_position = old_position - offset
+	calibration_position:	LREAL :=  240.02; //219.520182; // offset -9.9 from 229.42; // offset -5.58 from 235.0; // set by compass
 END_VAR
 VAR PERSISTENT
 	last_position:	LREAL := -1.0;
@@ -78,7 +79,9 @@ Power must be on and brake must be open for the axis to operate
 readydelay(IN :=  AzimuthAxis.Enable, PT := T#3000MS, Q=> ready);
 
 // limit the input position angle
-position := LIMIT(0.0, position, 450.0);
+//position := LIMIT(0.0, position, 450.0);
+position := LMOD(position, 360.0); // TODO remove before flight
+position := LIMIT(-5.0, position, 340.0);
 
 // conduct the calibrated signal
 calibrated := AzimuthAxis.Calibrated;
@@ -110,24 +113,22 @@ END_IF
 IF Calibrated THEN
 	last_position := act_position;
 END_IF
-
-// enable the azimuth if not moved by the power chain. Sorry for the hack
-azimuth_rest_timer(IN := HydraulicsControl.brake_open AND 
-				(ABS(GVL_Telescope.AzimuthAxisRef.NcToPlc.ActVelo) < 0.01), PT := T#2S);
-// if azimuth at rest or calibrated, allow enabling the azimuth
-IF azimuth_rest_timer.Q or calibrated THEN
-	azimuth_at_rest := TRUE;
-ELSIF HydraulicsControl.brake_closed THEN
-	azimuth_at_rest := FALSE;
-END_IF
 	
 // deactivate limit switches on homing
 MC_SetAcceptBlockedDriveSignal(
 	Axis := GVL_Telescope.AzimuthAxisRef, 
-	Enable := HomeAxis);
+	Enable := HomeAxis OR Calibrated);
 
+IF Calibrated THEN
+	enable_positive := act_position < 450.0;
+	enable_negative := act_position > -50.0;
+ELSE
+	enable_positive := NOT GVL_Telescope.Azimuth_inputs.3 OR HomeAxis;
+	enable_negative := NOT GVL_Telescope.Azimuth_inputs.3 OR HomeAxis;
+END_IF
+	
 AzimuthAxis(	
-	Enable := 			enable AND azimuth_at_rest AND NOT GVL_Telescope.azimut_limit_switch,
+	Enable := 			enable AND HydraulicsControl.brake_open AND NOT GVL_Telescope.azimut_limit_switch,
 	Reset := 			reset,
 	MoveAxis :=			MoveAxis,
 	HomeAxis := 		HomeAxis,
@@ -135,11 +136,11 @@ AzimuthAxis(
 	Tracking :=			Tracking,
 	Position := 		position, 
 	Velocity :=			velocity,
-	Enable_Positive := 	GVL_Telescope.Azimuth_inputs.1 OR HomeAxis,
-	Enable_Negative := 	GVL_Telescope.Azimuth_inputs.0,
+	Enable_Positive := 	enable_positive, //GVL_Telescope.Azimuth_inputs.1
+	Enable_Negative := 	enable_negative, //GVL_Telescope.Azimuth_inputs.0,
 	Jog_Forward :=		right,
 	Jog_Backwards := 	left,
-	bCalibrationCam :=	NOT GVL_Telescope.Azimuth_inputs.1,
+	bCalibrationCam :=	GVL_Telescope.Azimuth_inputs.3,
 	ActualPosition => 	act_position,
 	Error => 			error,
 	ErrorID => 			ErrorID,
@@ -187,6 +188,12 @@ IF ReadParameter.Valid THEN
 	slewtime := ReadParameter.Value;
 END_IF
 
+(*
+IF Error THEN
+	HydraulicsControl.close_brake();
+END_IF
+*)
+
 azimuth_torque := GVL_Telescope.Azimuth_torque / 10.0;
 TorqueError(IN := ABS(azimuth_torque) > 50.0);
 
@@ -225,7 +232,9 @@ CalibrationEvent(
       <LineId Id="284" Count="0" />
       <LineId Id="345" Count="0" />
       <LineId Id="344" Count="0" />
-      <LineId Id="243" Count="0" />
+      <LineId Id="1466" Count="0" />
+      <LineId Id="1468" Count="0" />
+      <LineId Id="1467" Count="0" />
       <LineId Id="346" Count="0" />
       <LineId Id="333" Count="0" />
       <LineId Id="285" Count="0" />
@@ -239,17 +248,16 @@ CalibrationEvent(
       <LineId Id="701" Count="0" />
       <LineId Id="700" Count="0" />
       <LineId Id="702" Count="5" />
-      <LineId Id="893" Count="0" />
-      <LineId Id="885" Count="0" />
-      <LineId Id="887" Count="0" />
-      <LineId Id="892" Count="0" />
-      <LineId Id="1164" Count="0" />
-      <LineId Id="895" Count="1" />
-      <LineId Id="898" Count="1" />
-      <LineId Id="897" Count="0" />
       <LineId Id="680" Count="0" />
       <LineId Id="239" Count="3" />
+      <LineId Id="1390" Count="0" />
       <LineId Id="115" Count="0" />
+      <LineId Id="1397" Count="1" />
+      <LineId Id="1392" Count="0" />
+      <LineId Id="1394" Count="0" />
+      <LineId Id="1396" Count="0" />
+      <LineId Id="1393" Count="0" />
+      <LineId Id="1391" Count="0" />
       <LineId Id="33" Count="0" />
       <LineId Id="108" Count="0" />
       <LineId Id="39" Count="0" />
@@ -286,6 +294,10 @@ CalibrationEvent(
       <LineId Id="569" Count="0" />
       <LineId Id="565" Count="0" />
       <LineId Id="570" Count="1" />
+      <LineId Id="1315" Count="1" />
+      <LineId Id="1387" Count="0" />
+      <LineId Id="1317" Count="1" />
+      <LineId Id="1386" Count="0" />
       <LineId Id="446" Count="0" />
       <LineId Id="448" Count="0" />
       <LineId Id="512" Count="0" />

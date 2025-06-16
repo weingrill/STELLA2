@@ -145,9 +145,9 @@ brake_state(SET := brake_open_delay.Q AND iopen_brake AND MAIN.brake_clearing,
 					  OR NOT MAIN.brake_clearing,
 			Q1 => GVL_Telescope.brake_azimuth_eve);
 
-// signal that the brake is open after one second
+// signal that the brake is open after x seconds
 brake_opened_delay(	IN :=brake_state.Q1, 
-					PT := T#1000MS,
+					PT := T#2000MS,
 					Q => brake_open);
 
 brake_closed := NOT brake_open;
@@ -170,8 +170,8 @@ suction_timer(	bStart := suction_running AND NOT suction_pump_timer.Q,
 
 suction_pump_timer(IN := GVL_Hydraulics.oilpan_maximum,
 					PT := T#30S);
-suction_trigger(SET1 := GVL_Hydraulics.oilpan_maximum OR oil_level>3.8,
-				RESET := oil_level<3.0);
+suction_trigger(SET1 := GVL_Hydraulics.oilpan_maximum OR oil_level>2.8,
+				RESET := oil_level<1.8);
 GVL_Hydraulics.oil_suction_enable := suction_trigger.Q1 OR suction_manual;					
 suction_watchdog(IN := (GVL_Hydraulics.oil_suction_enable AND NOT suction_running) OR GVL_Hydraulics.oilpan_maximum,
 					PT := T#10S,
