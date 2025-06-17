@@ -65,7 +65,7 @@ VAR CONSTANT
 	// homing_position:		LREAL := 439.0; // was 442 - -21.21 = 463.21; 463 + 24 = 439
 	// current position of the calibration cam encoder zero index. Apply an offset here if necessary
 	// new_position = old_position - offset
-	calibration_position:	LREAL :=  240.02; //219.520182; // offset -9.9 from 229.42; // offset -5.58 from 235.0; // set by compass
+	calibration_position:	LREAL :=  239.16; //240.02; //219.520182; // offset -9.9 from 229.42; // offset -5.58 from 235.0; // set by compass
 END_VAR
 VAR PERSISTENT
 	last_position:	LREAL := -1.0;
@@ -81,7 +81,7 @@ readydelay(IN :=  AzimuthAxis.Enable, PT := T#3000MS, Q=> ready);
 // limit the input position angle
 //position := LIMIT(0.0, position, 450.0);
 position := LMOD(position, 360.0); // TODO remove before flight
-position := LIMIT(-5.0, position, 340.0);
+position := LIMIT(-5.0, position, 345.0);
 
 // conduct the calibrated signal
 calibrated := AzimuthAxis.Calibrated;
@@ -140,7 +140,7 @@ AzimuthAxis(
 	Enable_Negative := 	enable_negative, //GVL_Telescope.Azimuth_inputs.0,
 	Jog_Forward :=		right,
 	Jog_Backwards := 	left,
-	bCalibrationCam :=	GVL_Telescope.Azimuth_inputs.3,
+	bCalibrationCam :=	NOT GVL_Telescope.Azimuth_inputs.3,
 	ActualPosition => 	act_position,
 	Error => 			error,
 	ErrorID => 			ErrorID,

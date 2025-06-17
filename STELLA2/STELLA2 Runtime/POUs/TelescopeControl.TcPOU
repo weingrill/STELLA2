@@ -203,9 +203,9 @@ azimuth_calc := azimuth_calc + PointingModelAzimuth(azimuth_calc, elevation_calc
 ElevationVelocity := F_Elevationvelocity(azimuth_calc, latitude);
 AzimuthVelocity := F_Azimuthvelocity(elevation_calc, azimuth_calc, latitude);
 
-IF (azimuth_calc > 310.0 AND AzimuthVelocity > 0.0) OR (azimuth_calc > 440.0) THEN
+IF (azimuth_calc > 350.0 AND AzimuthVelocity > 0.0) OR (azimuth_calc > 440.0) THEN
 	azimuth_calc := azimuth_calc - 360.0;
-ELSIF (azimuth_calc < 80.0 AND AzimuthVelocity < 0.0) OR (azimuth_calc < -50.0) THEN
+ELSIF (azimuth_calc < -10.0 AND AzimuthVelocity < 0.0) OR (azimuth_calc < -50.0) THEN
 	azimuth_calc := azimuth_calc + 360.0;
 END_IF
 
