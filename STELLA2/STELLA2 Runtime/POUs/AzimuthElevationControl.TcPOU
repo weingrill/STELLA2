@@ -79,9 +79,9 @@ Power must be on and brake must be open for the axis to operate
 readydelay(IN :=  AzimuthAxis.Enable, PT := T#3000MS, Q=> ready);
 
 // limit the input position angle
-//position := LIMIT(0.0, position, 450.0);
-position := LMOD(position, 360.0); // TODO remove before flight
-position := LIMIT(-5.0, position, 345.0);
+position := LIMIT(-90.0, position, 450.0);
+//position := LMOD(position, 360.0); // TODO remove before flight
+//position := LIMIT(-5.0, position, 345.0);
 
 // conduct the calibrated signal
 calibrated := AzimuthAxis.Calibrated;
@@ -140,7 +140,7 @@ AzimuthAxis(
 	Enable_Negative := 	enable_negative, //GVL_Telescope.Azimuth_inputs.0,
 	Jog_Forward :=		right,
 	Jog_Backwards := 	left,
-	bCalibrationCam :=	NOT GVL_Telescope.Azimuth_inputs.3,
+	bCalibrationCam :=	GVL_Telescope.Azimuth_inputs.3,
 	ActualPosition => 	act_position,
 	Error => 			error,
 	ErrorID => 			ErrorID,

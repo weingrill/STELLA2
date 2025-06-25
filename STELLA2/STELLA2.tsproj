@@ -2142,7 +2142,7 @@ External Setpoint Generation:
 					<AxisPara>
 						<General UnitName="°"/>
 						<Dynamic AccelerationMaximum="10" DecelerationMaximum="10" Acceleration="3" Deceleration="3" Jerk="1"/>
-						<Velo RefSearch="2" RefSync="1" SlowManual="3" FastManual="5" Fast="792" Maximum="10"/>
+						<Velo RefSearch="1" RefSync="1" SlowManual="3" FastManual="5" Fast="792" Maximum="10"/>
 						<TargetPosControl Range="1" Time="0.1"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
@@ -2150,7 +2150,7 @@ External Setpoint Generation:
 						<EncPara ScaleFactorNumerator="360" ScaleFactorDenominator="16777216" MaxCount="#xffffffff">
 							<SoftEndMinControl Enable="true" Range="-50"/>
 							<SoftEndMaxControl Enable="true" Range="450"/>
-							<Inc RefPosition="229.42" RefMode="2" RefSoftSyncMask="#x00ffffff"/>
+							<Inc RefPosition="239.16" RefMode="2" RefSoftSyncMask="#x00ffffff"/>
 						</EncPara>
 						<Vars VarGrpType="1">
 							<Name>Eingänge</Name>
@@ -2214,7 +2214,6 @@ External Setpoint Generation:
 						<DrvPara MaxCount="#xffffffff" DriveControlDWord="#x00030100">
 							<Analog VeloReferenz="871.2" VeloScale="0.064000405993726" TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
 							<TimeComp TaskDelayCycles="1"/>
-							<ParameterChanged>261</ParameterChanged>
 						</DrvPara>
 						<Vars VarGrpType="1">
 							<Name>Eingänge</Name>
@@ -2738,14 +2737,14 @@ DIN3 0.2]]></Comment>
 							<Type>WORD</Type>
 						</Var>
 						<Var>
-							<Name>GVL_Telescope.Elevation_torque</Name>
-							<Comment><![CDATA[ torque feedback]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>GVL_Telescope.Elevation_diagnostic</Name>
 							<Comment><![CDATA[ diagnostic number]]></Comment>
 							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>GVL_Telescope.Elevation_torque</Name>
+							<Comment><![CDATA[ torque feedback]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>GVL_Telescope.Azimuth_inputs</Name>
@@ -2753,14 +2752,14 @@ DIN3 0.2]]></Comment>
 							<Type>WORD</Type>
 						</Var>
 						<Var>
-							<Name>GVL_Telescope.Azimuth_torque</Name>
-							<Comment><![CDATA[ torque feedback]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>GVL_Telescope.Azimuth_diagnostic</Name>
 							<Comment><![CDATA[ diagnostic number]]></Comment>
 							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>GVL_Telescope.Azimuth_torque</Name>
+							<Comment><![CDATA[ torque feedback]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>GVL_Telescope.AzimuthAxisRef.NcToPlc</Name>
@@ -2865,14 +2864,6 @@ DOUT9 1.0]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>GVL_Telescope.AzimuthAxisRef.PlcToNc</Name>
-							<Type GUID="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>GVL_Telescope.ElevationAxisRef.PlcToNc</Name>
-							<Type GUID="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
 							<Name>GVL_Telescope.open_cover1</Name>
 							<Type>BOOL</Type>
 						</Var>
@@ -2895,6 +2886,14 @@ DOUT9 1.0]]></Comment>
 						<Var>
 							<Name>GVL_Telescope.close_cover3</Name>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_Telescope.AzimuthAxisRef.PlcToNc</Name>
+							<Type GUID="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL_Telescope.ElevationAxisRef.PlcToNc</Name>
+							<Type GUID="{63A84524-72E3-41C8-BEAB-4CCE44690A13}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 					</Vars>
 					<Contexts>
@@ -5612,7 +5611,7 @@ Bit1: Value smaller than Limit2]]></Comment>
 						<MBoxUserCmdData>02000500140000001b00000000000000000000000000000000000000000000000340fb800000000008000800000008000100000050726f62652031206c6f67696320636f6e66696775726174696f6e00</MBoxUserCmdData>
 						<MBoxUserCmdData>020005000a0000001700000000000000000000000000000000000000000000000340a90000000000210150726f626520636f6e74726f6c20706172616d6574657200</MBoxUserCmdData>
 						<MBoxUserCmdData>020005000a0000001400000000000000000000000000000000000000000000000340fa8000000000000050726f626520312076616c756520736f7572636500</MBoxUserCmdData>
-						<MBoxUserCmdData>020005000c000000230000000000000000000000000000000000000000000000034091810000000012030000506f736974696f6e206c696d69742073776974636820636f6e66696775726174696f6e00</MBoxUserCmdData>
+						<MBoxUserCmdData>020005000c000000230000000000000000000000000000000000000000000000034091810000000010030003506f736974696f6e206c696d69742073776974636820636f6e66696775726174696f6e00</MBoxUserCmdData>
 						<MBoxUserCmdData>020005000a0000001a00000000000000000000000000000000000000000000000340280100000000102756656c6f63697479206665656420666f7277617264206761696e00</MBoxUserCmdData>
 						<MBoxUserCmdData>020005000a0000001e000000000000000000000000000000000000000000000003405c01000000006400416363656c65726174696f6e206665656420666f7277617264206761696e00</MBoxUserCmdData>
 						<MBoxUserCmdData>020005000a0000002d0000000000000000000000000000000000000000000000034031820000000003004269706f6c617220706f736974696f6e20636f6e74726f6c6c6572206f7574707574206c696d69746174696f6e00</MBoxUserCmdData>

@@ -75,6 +75,9 @@
     <Compile Include="POUs\Function Blocks\CO_ABERRATION.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Function Blocks\CO_NUTATE.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Function Blocks\CO_REFRACT.TcPOU">
       <SubType>Code</SubType>
     </Compile>
