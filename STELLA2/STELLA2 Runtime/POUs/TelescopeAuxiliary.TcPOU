@@ -27,8 +27,8 @@ END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[temperature_mirror1 := GVL_Telescope.temperature_mirror1 / 1000.0;
-temperature_mirror2 := GVL_Telescope.temperature_mirror2 / 1000.0;
+      <ST><![CDATA[temperature_mirror1 := F_YREAL(GVL_Telescope.temperature_mirror1, 0, 32767, 0.0, 100.0);
+temperature_mirror2 := F_YREAL(GVL_Telescope.temperature_mirror1, 0, 32767, -50.0, 100.0);
 
 
 cycle := cycle MOD 8;
@@ -76,7 +76,7 @@ MQTTTimer(IN:=TRUE);
 IF MQTTTimer.Q THEN // publish new payload every second
 
 	MAIN.MQTTClient.Publish('telescope', 'dome', 'Mirror1Temperature',	LREAL_TO_FMTSTR(temperature_mirror1, 2, TRUE));
-	MAIN.MQTTClient.Publish('telescope', 'dome', 'Mirror2Temperature',	LREAL_TO_FMTSTR(temperature_mirror2, 2, TRUE));
+	//MAIN.MQTTClient.Publish('telescope', 'dome', 'Mirror2Temperature',	LREAL_TO_FMTSTR(temperature_mirror2, 2, TRUE));
 	MAIN.MQTTClient.Publish('telescope', 'dome', 'DewarPressureVoltage', LREAL_TO_FMTSTR(pressure_voltage, 3, TRUE));
 	MAIN.MQTTClient.Publish('telescope', 'dome', 'DewarPressure', LREAL_TO_FMTSTR(dewar_pressure_atm, 9, TRUE));
 	
