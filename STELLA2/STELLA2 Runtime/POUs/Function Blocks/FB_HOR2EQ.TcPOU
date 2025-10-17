@@ -52,9 +52,7 @@ VAR CONSTANT
 	h2d:	LREAL := 15.0;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
-
-alt_ := alt;   //do this so we don't change ra, dec arrays.
+      <ST><![CDATA[alt_ := alt;   //do this so we don't change ra, dec arrays.
 az_ := az;
 
 
@@ -139,47 +137,13 @@ J_now := (JD - 2451545.0)/365.25 + 2000.0 ;
 
 IF precess THEN 
 	fbprecess( ra := ra, dec := dec, 
-	EQUINOX1 := 2000.0, EQUINOX2 := J_now, 
+	EQUINOX1 := J_now, EQUINOX2 := 2000.0, // bugfix from randnotizlukas
 	ra_precessed =>ra, dec_precessed => dec);                   
 END_IF
 ]]></ST>
     </Implementation>
     <LineIds Name="FB_HOR2EQ">
-      <LineId Id="39" Count="4" />
-      <LineId Id="47" Count="4" />
-      <LineId Id="189" Count="2" />
-      <LineId Id="188" Count="0" />
-      <LineId Id="129" Count="0" />
-      <LineId Id="53" Count="1" />
-      <LineId Id="131" Count="1" />
-      <LineId Id="55" Count="0" />
-      <LineId Id="141" Count="5" />
-      <LineId Id="57" Count="5" />
-      <LineId Id="134" Count="0" />
-      <LineId Id="63" Count="1" />
-      <LineId Id="135" Count="0" />
-      <LineId Id="65" Count="0" />
-      <LineId Id="68" Count="8" />
-      <LineId Id="79" Count="3" />
-      <LineId Id="166" Count="0" />
-      <LineId Id="152" Count="5" />
-      <LineId Id="151" Count="0" />
-      <LineId Id="179" Count="1" />
-      <LineId Id="182" Count="0" />
-      <LineId Id="169" Count="1" />
-      <LineId Id="173" Count="5" />
-      <LineId Id="184" Count="2" />
-      <LineId Id="172" Count="0" />
-      <LineId Id="86" Count="1" />
-      <LineId Id="165" Count="0" />
-      <LineId Id="88" Count="1" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="90" Count="0" />
-      <LineId Id="96" Count="4" />
-      <LineId Id="110" Count="0" />
-      <LineId Id="193" Count="1" />
-      <LineId Id="192" Count="0" />
-      <LineId Id="115" Count="0" />
+      <LineId Id="244" Count="87" />
       <LineId Id="9" Count="0" />
     </LineIds>
   </POU>

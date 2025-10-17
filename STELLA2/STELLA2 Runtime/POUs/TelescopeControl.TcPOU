@@ -244,10 +244,12 @@ ELSIF park THEN
 	goto := FALSE;
 	track := FALSE;
 	slew := FALSE;
+	gohome := FALSE;
 	IF ready AND stopped THEN
 		TCS_command := E_TCSCommand.park;
 	END_IF
 ELSIF gohome THEN
+	park := FALSE;
 	goto := FALSE;
 	track := FALSE;
 	slew := FALSE;
@@ -847,7 +849,7 @@ END_IF
       </Implementation>
     </Method>
     <LineIds Name="TelescopeControl">
-      <LineId Id="9447" Count="287" />
+      <LineId Id="9880" Count="289" />
       <LineId Id="3293" Count="0" />
     </LineIds>
     <LineIds Name="TelescopeControl.gototelescope">
