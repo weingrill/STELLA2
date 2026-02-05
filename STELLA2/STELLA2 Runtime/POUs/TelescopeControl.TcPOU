@@ -42,6 +42,8 @@ see https://gitlab.aip.de/bmk10k/telescope_firmware/snippets/5
 	time_offset: 		LREAL := 0.0;
 	// Nasmyth port 1 or 2
 	Nasmyth_port: 		USINT;
+	// reset pointing model
+	resetpointing:		BOOL;
 END_VAR
 VAR
 	// actual command from the TCS
@@ -212,6 +214,17 @@ END_IF
 // get current coordinates	
 azimuth_current := AzimuthElevationControl.act_position;
 elevation_current := ElevationControl.actual_position;
+
+IF resetpointing THEN
+	AN_A := 0.0;
+	AN_E := 0.0;
+	AE_A := 0.0;
+	AE_E := 0.0;
+	BNP := 0.0;
+	TF := 0.0;
+	NPAE := 0.0;
+	resetpointing := FALSE;
+END_IF
 
 // calculate equatorial coordinates
 hor2eq(alt := elevation_current - PointingModelElevation(azimuth_calc, elevation_calc, elevation_offset, AN_E, AE_E, TF), 
@@ -849,7 +862,12 @@ END_IF
       </Implementation>
     </Method>
     <LineIds Name="TelescopeControl">
-      <LineId Id="9880" Count="289" />
+      <LineId Id="9880" Count="63" />
+      <LineId Id="10317" Count="1" />
+      <LineId Id="10322" Count="5" />
+      <LineId Id="10321" Count="0" />
+      <LineId Id="10319" Count="1" />
+      <LineId Id="9944" Count="225" />
       <LineId Id="3293" Count="0" />
     </LineIds>
     <LineIds Name="TelescopeControl.gototelescope">

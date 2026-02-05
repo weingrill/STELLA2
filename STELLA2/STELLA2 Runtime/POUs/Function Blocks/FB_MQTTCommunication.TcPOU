@@ -113,6 +113,8 @@ IF fbMessageQueue.nQueuedMessages > 0 THEN
 					TelescopeControl.elevation_offset := STRING_TO_LREAL(value);
 				ELSIF parameter = 'azimuthoffset' THEN
 					TelescopeControl.azimuth_offset := STRING_TO_LREAL(value);
+				ELSIF parameter = 'resetpointing' THEN
+					TelescopeControl.resetpointing  := STRING_TO_BOOL(value);
 				ELSE
 					ADSLOGSTR( ADSLOG_MSGTYPE_WARN OR ADSLOG_MSGTYPE_LOG, 'MQTT not understood %s', sPayloadRcv);
 				END_IF
@@ -219,6 +221,8 @@ published := fbMqttClient.Publish(
       <LineId Id="484" Count="0" />
       <LineId Id="380" Count="4" />
       <LineId Id="421" Count="3" />
+      <LineId Id="567" Count="0" />
+      <LineId Id="574" Count="0" />
       <LineId Id="540" Count="0" />
       <LineId Id="388" Count="5" />
       <LineId Id="105" Count="0" />

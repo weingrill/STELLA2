@@ -53,7 +53,7 @@ VAR
 	// monitors the pressure of the pump is running
 	pressure_watchdog:	TON;
 	// monitors the activation of the suction pump
-	suction_watchdog: TON;
+	suction_watchdog:	TON := (PT := T#120S);
 	// monitors the activation of the main pump
 	main_pump_watchdog:	TON;
 	// watch the hydraulics and suction pumps
@@ -177,15 +177,13 @@ END_IF
 (* This is the end of the brake control section *)
 
 // adjust maximum oil level
-IF (oil_level < oil_level_max AND GVL_Hydraulics.oilpan_maximum) OR 
-	(oil_level > oil_level_max AND NOT GVL_Hydraulics.oilpan_maximum) THEN
+IF (oil_level < oil_level_max AND GVL_Hydraulics.oilpan_maximum) THEN
 	oil_level_max := oil_level;	
 END_IF
 suction_trigger(SET1 := GVL_Hydraulics.oilpan_maximum OR oil_level > oil_level_max,
 				RESET := oil_level < oil_level_min);
 GVL_Hydraulics.oil_suction_enable := suction_trigger.Q1 OR suction_manual;					
 suction_watchdog(IN := (GVL_Hydraulics.oil_suction_enable AND NOT suction_running) OR GVL_Hydraulics.oilpan_maximum,
-					PT := T#10S,
 					Q => suction_failure);
 					
 pressure_watchdog(IN := GVL_Hydraulics.oil_pump_enable AND 
@@ -350,7 +348,9 @@ RETURN(brake_open);]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="HydraulicsControl">
-      <LineId Id="3573" Count="220" />
+      <LineId Id="3573" Count="78" />
+      <LineId Id="3653" Count="5" />
+      <LineId Id="3660" Count="133" />
       <LineId Id="708" Count="0" />
     </LineIds>
     <LineIds Name="HydraulicsControl.close_brake">

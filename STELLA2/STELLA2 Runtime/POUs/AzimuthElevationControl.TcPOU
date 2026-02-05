@@ -123,8 +123,8 @@ IF Calibrated THEN
 	enable_positive := act_position < 450.0;
 	enable_negative := act_position > -50.0;
 ELSE
-	enable_positive := NOT GVL_Telescope.Azimuth_inputs.3 OR HomeAxis;
-	enable_negative := NOT GVL_Telescope.Azimuth_inputs.3 OR HomeAxis;
+	enable_positive := GVL_Telescope.Azimuth_inputs.3 OR HomeAxis;
+	enable_negative := GVL_Telescope.Azimuth_inputs.3 OR HomeAxis;
 END_IF
 	
 AzimuthAxis(	
@@ -140,7 +140,7 @@ AzimuthAxis(
 	Enable_Negative := 	enable_negative, //GVL_Telescope.Azimuth_inputs.0,
 	Jog_Forward :=		right,
 	Jog_Backwards := 	left,
-	bCalibrationCam :=	GVL_Telescope.Azimuth_inputs.3,
+	bCalibrationCam :=	NOT GVL_Telescope.Azimuth_inputs.3,
 	ActualPosition => 	act_position,
 	Error => 			error,
 	ErrorID => 			ErrorID,
@@ -195,7 +195,7 @@ END_IF
 *)
 
 azimuth_torque := GVL_Telescope.Azimuth_torque / 10.0;
-TorqueError(IN := ABS(azimuth_torque) > 50.0);
+TorqueError(IN := ABS(azimuth_torque) > 60.0);
 
 
 AzimuthAxisEvent(	
