@@ -173,7 +173,12 @@ CASE Selection OF
 		
 		
 		
-	10:	// FilterWheel control
+	10:	// FilterWheel control --- dummy test for az limit swtich
+			lamp_up := GVL_Telescope.Azimuth_inputs.0;
+			lamp_down := GVL_Telescope.Azimuth_inputs.1;
+			lamp_left := GVL_Telescope.Azimuth_inputs.2;
+			lamp_right := GVL_Telescope.Azimuth_inputs.3;
+
 		
 	11: lamp_up := ElevationControl.elevation_torque > 0.0;
 		lamp_down := ElevationControl.elevation_torque < 0.0;
@@ -281,6 +286,8 @@ GVL_pendant_control.lamp_error := lamp_error;]]></ST>
       <LineId Id="3322" Count="2" />
       <LineId Id="3333" Count="2" />
       <LineId Id="3344" Count="33" />
+      <LineId Id="3691" Count="3" />
+      <LineId Id="3690" Count="0" />
       <LineId Id="3394" Count="1" />
       <LineId Id="3646" Count="0" />
       <LineId Id="3396" Count="70" />
