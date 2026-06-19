@@ -120,7 +120,7 @@ VAR_OUTPUT
 	busy:				BOOL;
 END_VAR
 VAR CONSTANT
-// STELLA1
+// STELLA2
 	// telescope site longitude, source: Google 
 	longitude: 		LREAL := -16.50926; //13.101867;
 	// telescope site latitude, source: Google
@@ -413,7 +413,7 @@ END_IF
 (* Event function blocks start here. *)
 TCSpowerEvent(	Trigger := powerfailure, 
 				Level := ADSLOG_MSGTYPE_ERROR,
-				FormatString := 'power %s',
+				FormatString := 'poweron %s',
 				OnMessage := 'Failure',
 				OffMessage := 'OK');
 
@@ -451,7 +451,7 @@ AltitudeEvent(	Trigger := power AND elevation_calc<0.0,
 TCSreadyEvent(	Trigger := power AND ready, 
 				Level := ADSLOG_MSGTYPE_HINT,
 				FormatString := '%s',
-				OnMessage := 'STELLA1 startup finished');]]></ST>
+				OnMessage := 'STELLA2 startup finished');]]></ST>
     </Implementation>
     <Method Name="gototelescope" Id="{c7053474-39ba-4cc3-ab24-2521b02cf8f4}">
       <Declaration><![CDATA[METHOD gototelescope: USINT
